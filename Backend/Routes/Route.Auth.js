@@ -5,6 +5,9 @@ const AuthRouter = express.Router() ;
 // userModel
 const UserModel = require('../Models/model.users');
 
+// modules
+const generateToken = require('../Modules/Module.generateJwtToken')
+// middleware
 const checkAuthentication = require('../Middlewares/Midddleware.CheckAuthentication')
 
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
@@ -25,7 +28,7 @@ passport.use(new GoogleStrategy({
     try {
       let findUser = await UserModel.findOne({email:email});
       if(!findUser) {
-        const user = await UserModel.create({name:profile.displayName,googleId:profile.id,email:email});
+        const user = await UserModel.create({name:profile.displayName,email:email,googleId:profile.id,oAuthAccessToken:accessToken}); // googleId:profile.id
         return cb(null,user)
       } else {
         return cb(null,findUser)
@@ -35,6 +38,50 @@ passport.use(new GoogleStrategy({
     }
   }
 ));
+
+
+passport.serializeUser(function(user, cb) {
+    cb(null, user.googleId);
+  }); // for store session state 
+  
+passport.deserializeUser(async function(id, cb) {
+    const user = await UserModel.findOne({googleId:id});
+    cb(null, user);
+}); // for retrive user from the session by using 
+  
+
+AuthRouter.get('/auth/google',
+    passport.authenticate('google', { scope: ['profile','email'] }))
+
+AuthRouter.get('/auth/google/callback', 
+        passport.authenticate('google', { failureRedirect: '/error' }),
+        function(req, res) {
+          try {
+            const {name,email} = req.user;
+            const firstName = name.split(' ')[0];
+            const token = generateToken({id:req.user._id});
+            res.status(200).json({message:"Login Successful",name:firstName,email,token}) // temporary for test
+
+             const production = `https://dell-india.netlify.app?token=${token}`;
+            const development = `http://localhost:4000?token=${token}`
+            //res.redirect(development) // redirected to home page of front-end
+
+          }catch(e) {
+           res.status(500).json({message:"Internal server Error"})
+          } 
+});
+
+AuthRouter.get('/getUserInfo',checkAuthentication,async(req,res)=>{
+  try {
+  const {id} = req.user;
+  const findUser = await UserModel.find({_id:id});
+  res.status(200).json({message:"User Fetched",name:findUser[0].name,email:findUser[0].email,sharable_link:findUser[0].sharable_link})
+  
+  }catch (error) {
+   res.status(500).json({message:"Internal Server Error"})
+  }
+})
+// by using this endpoint we are able to check if user is a new or old depending on sharable link false 
 
 AuthRouter.get('/healthCheck',(req,res)=>{
     res.end('Auth Router is Ok')

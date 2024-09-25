@@ -8,6 +8,7 @@ const server = express(); // express server
 
 // routes
 const AuthRouter = require('./Routes/Route.Auth'); 
+const ServiceRouter = require('./Routes/Route.Services');
 // <<- routes
 
 server.use(express.json()) ; // for receiving incoming request body
@@ -18,8 +19,8 @@ server.get('/server/healthCheck',(req,res)=>{
 })
 // server health check route
 
-server.use('/auth/v1',AuthRouter) // auth router Handelling login and register with Google
-
+server.use('/login',AuthRouter) // auth router Handelling login and register with Google
+server.use('/api/v1',ServiceRouter)
 
 server.listen(process.env.PORT,async()=>{
     
