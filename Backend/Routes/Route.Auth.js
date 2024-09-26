@@ -24,13 +24,18 @@ passport.use(new GoogleStrategy({
     callbackURL: 'http://localhost:4000/login/auth/google/callback', // subject to change 
   },
   async function(accessToken, refreshToken, profile, cb) {
+
+    
     const email = profile.emails[0].value;
     try {
       let findUser = await UserModel.findOne({email:email});
       if(!findUser) {
-        const user = await UserModel.create({name:profile.displayName,email:email,googleId:profile.id,oAuthAccessToken:accessToken}); // googleId:profile.id
+        const user = await UserModel.create({name:profile.displayName,email:email,googleId:profile.id,oAuthAccessToken:accessToken,
+          oAuthRefreshToken : refreshToken
+     });
         return cb(null,user)
       } else {
+        await UserModel.updateOne({email:email},{$set:{oAuthAccessToken:accessToken,oAuthRefreshToken:refreshToken}});
         return cb(null,findUser)
       }
     } catch(error) {
@@ -48,14 +53,14 @@ passport.deserializeUser(async function(id, cb) {
     const user = await UserModel.findOne({googleId:id});
     cb(null, user);
 }); // for retrive user from the session by using 
-  
+
 
 AuthRouter.get('/auth/google',
-    passport.authenticate('google', { scope: ['profile','email'] }))
+    passport.authenticate('google', { scope: ['profile','email','https://www.googleapis.com/auth/calendar'], accessType: 'offline'}))
 
 AuthRouter.get('/auth/google/callback', 
         passport.authenticate('google', { failureRedirect: '/error' }),
-        function(req, res) {
+        async function(req, res) {
           try {
             const {name,email} = req.user;
             const firstName = name.split(' ')[0];
