@@ -1,12 +1,11 @@
 const mongoose = require('mongoose');
 
 const availabilitySchema = new mongoose.Schema({
-day: { type: String, required: true },
-year:{type:String,required:true},
 month:{type:Number,required:true},
 date:{type:Number,required:true},
-startTime: { type: String, required: true },
-endTime: { type: String, required: true },
+slots : [
+    {start : {type : String} , end : {type: String}}
+]
 })
 
 const userSchema = new mongoose.Schema({

@@ -58,14 +58,14 @@ ServiceRouter.post('/sharableLink',checkAuthentication,async(req,res)=>{
 ServiceRouter.patch('/slots',checkAuthentication,async(req,res)=>{
 
     try {
-       const {slots} = req.body;
+       const {availability} = req.body;
        const {user:{id}} = req; // from auth middleware
 
-       if(!slots) {
+       if(!availability) {
         return res.status(404).json({message:"Please Provide Slots to update Existing Slots or create"})
        }
 
-       const updateOrCreateSlots = await UserModel.updateOne({_id:id},{$set:{availability:slots}});
+       const updateOrCreateSlots = await UserModel.updateOne({_id:id},{$set:{availability:availability}});
        
        if(updateOrCreateSlots.modifiedCount == 0) {
         return res.status(500).json({message:"Failed to Update availability Slots try again Later"})
