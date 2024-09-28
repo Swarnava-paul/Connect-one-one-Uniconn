@@ -76,18 +76,6 @@ AuthRouter.get('/auth/google/callback',
           } 
 });
 
-AuthRouter.get('/getUserInfo',checkAuthentication,async(req,res)=>{
-  try {
-  const {id} = req.user;
-  const findUser = await UserModel.find({_id:id});
-  res.status(200).json({message:"User Fetched",name:findUser[0].name,email:findUser[0].email,sharable_link:findUser[0].sharable_link})
-  
-  }catch (error) {
-   res.status(500).json({message:"Internal Server Error"})
-  }
-})
-// by using this endpoint we are able to check if user is a new or old depending on sharable link false 
-
 AuthRouter.get('/healthCheck',(req,res)=>{
     res.end('Auth Router is Ok')
 });

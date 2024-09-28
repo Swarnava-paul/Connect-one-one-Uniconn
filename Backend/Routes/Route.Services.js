@@ -12,6 +12,23 @@ const UserModel = require('../Models/model.users');
 // mmodules 
 const ConvertTimeZoneToUtc = require('../Modules/Module.ConvertTimezoneToUtc')
 
+
+ServiceRouter.get('/getUserInfo',checkAuthentication,async(req,res)=>{
+  try {
+  const {id} = req.user;
+  const findUser = await UserModel.find({_id:id});
+  res.status(200).json({message:"User Fetched",name:findUser[0].name,email:findUser[0].email,
+    sharable_link:findUser[0].sharable_link,id:findUser[0]._id})
+  
+  }catch (error) {
+   res.status(500).json({message:"Internal Server Error"})
+  }
+})
+// by using this endpoint we are able to check if user is a new or old depending on sharable link false 
+// and also get details like id for comunication 
+
+
+
 ServiceRouter.get('/events',checkAuthentication,async(req,res)=>{
  
     try {
@@ -58,14 +75,14 @@ ServiceRouter.post('/sharableLink',checkAuthentication,async(req,res)=>{
 ServiceRouter.patch('/slots',checkAuthentication,async(req,res)=>{
 
     try {
-       const {availability} = req.body;
+       const {newAvailabilityDate} = req.body;
        const {user:{id}} = req; // from auth middleware
 
-       if(!availability) {
-        return res.status(404).json({message:"Please Provide Slots to update Existing Slots or create"})
+       if(!newAvailabilityDate) {
+        return res.status(404).json({message:"Please Provide Date with Slots or create Availability"})
        }
 
-       const updateOrCreateSlots = await UserModel.updateOne({_id:id},{$set:{availability:availability}});
+       const updateOrCreateSlots = await UserModel.updateOne({_id:id},{$push:{availability:newAvailabilityDate}});
        
        if(updateOrCreateSlots.modifiedCount == 0) {
         return res.status(500).json({message:"Failed to Update availability Slots try again Later"})
@@ -77,7 +94,7 @@ ServiceRouter.patch('/slots',checkAuthentication,async(req,res)=>{
         res.status(500).json({message:"Internal Server Error"});
     }
 })
-// this endpoint is handeling create or replace availability slots
+// this endpoint is handeling creating slots 
 
 ServiceRouter.get('/configure-session',async(req,res)=>{
 
@@ -106,13 +123,13 @@ ServiceRouter.get('/configure-session',async(req,res)=>{
 })
 // this above route handle request for return data to book a session 
 //data like booking with person availability , email , name etc.. in front-end we will use this to
-// 
+// this route will also use in future for get available slots for host to display session already created dates
 
 
 ServiceRouter.post('/book-session',async(req,res)=>{
  
   try {
-   const {id:bookingWithPersonId,startTime,bookerEmail,bookerName,bookerTimeZone} = req.body;
+   const {id:bookingWithPersonId,startTime,bookerEmail,bookerName,bookerTimeZone,slotId,availabilityId} = req.body;
     
    const findHost = await UserModel.findOne({_id:bookingWithPersonId});
 
@@ -163,9 +180,28 @@ ServiceRouter.post('/book-session',async(req,res)=>{
    })
    // above final event response
 
+
    
    eventResponse
-   .then((d)=>{
+   .then(async(d)=>{
+    // remove the slot timing after booked
+    
+    const {availability:updatedAvailability} = await UserModel.findOneAndUpdate(
+      {
+        _id: bookingWithPersonId, // Find the user by ID
+        "availability._id": availabilityId // Match the specific availability document if necessary
+      },
+      {
+        $pull: {
+          "availability.$.slots": { _id: slotId } // Pull the specific slot by its ID
+        }
+      },
+      { new: true } // Return the updated document
+    );
+
+    await UserModel.updateOne({_id:bookingWithPersonId},{$set:{availability:updatedAvailability}}) // removes that slot after booking
+    
+
     return res.status(200).json({response:true,
     message:"Session Scheduled Successful",
     bookingWithPersonInfo : {
