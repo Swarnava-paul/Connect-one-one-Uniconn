@@ -69,7 +69,7 @@ AuthRouter.get('/auth/google/callback',
 
             const development = `${process.env.RedirectUrlToFrontend}=${token}` // subject to change when font end
             //will deploy front-end main url of home page
-            res.redirect(development) // redirected to home page of front-end
+            res.redirect(`http://localhost:5173?token=${token}`) // redirected to home page of front-end
 
           }catch(e) {
            res.status(500).json({message:"Internal server Error"})
