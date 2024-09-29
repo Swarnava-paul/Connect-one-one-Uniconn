@@ -66,14 +66,13 @@ ServiceRouter.post('/sharableLink',checkAuthentication,async(req,res)=>{
        res.status(200).json({response:true,message:"Sharable Link Generated Successful",sharable_link});
 
     }catch(error) {
-        console.log(error)
         res.status(500).json({message:"Internal Server Error"})
     }
 }) 
 // this endpoint is handeling generate sharable link by using this link anyone in future will able to
 // book an one to one session with this person
 
-ServiceRouter.patch('/slots',checkAuthentication,async(req,res)=>{
+ServiceRouter.post('/slots',checkAuthentication,async(req,res)=>{
 
     try {
        const {newAvailabilityDate} = req.body;

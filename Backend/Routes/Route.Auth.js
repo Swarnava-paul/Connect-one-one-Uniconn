@@ -65,11 +65,11 @@ AuthRouter.get('/auth/google/callback',
             const {name,email} = req.user;
             const firstName = name.split(' ')[0];
             const token = generateToken({id:req.user._id});
-            res.status(200).json({message:"Login Successful",name:firstName,email,token}) // temporary for test
+            //res.status(200).json({message:"Login Successful",name:firstName,email,token}) // temporary for test
 
-             const production = `https://dell-india.netlify.app?token=${token}`;
-            const development = `http://localhost:4000?token=${token}`
-            //res.redirect(development) // redirected to home page of front-end
+            const development = `${process.env.RedirectUrlToFrontend}=${token}` // subject to change when font end
+            //will deploy front-end main url of home page
+            res.redirect(development) // redirected to home page of front-end
 
           }catch(e) {
            res.status(500).json({message:"Internal server Error"})
