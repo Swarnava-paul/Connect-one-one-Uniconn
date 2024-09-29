@@ -14,7 +14,7 @@ var GoogleStrategy = require('passport-google-oauth20').Strategy;
 const passport = require('passport');
 const session = require('express-session');
 
-AuthRouter.use(session({ secret:process.env.Session_Secret_Key, resave: false, saveUninitialized: true }));
+AuthRouter.use(session({ secret:process.env.session_Secret_Key, resave: false, saveUninitialized: true }));
 AuthRouter.use(passport.initialize());
 AuthRouter.use(passport.session());
 
