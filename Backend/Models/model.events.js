@@ -2,14 +2,15 @@ const mongoose = require('mongoose');
 
 const eventSchema = new mongoose.Schema({
 
-    sessionWith : {name : {type : String , required : true}, _id : {type: String , required : true} 
+    hostInfo : {name : {type : String , required : true}, id : {type: String , required : true} 
     ,email : {type : String , required : true}} ,
     
     bookerInfo : {bookerName : {type : String , required : true}  , bookerEmail : {type : String , required : true}},
     sessionInfo : {
     location : {type : String , required : true},
     meetingLink : {type :String,required:true},
-    dateAndTime : {type : String , required : true}
+    StartDateAndTime : {type : String , required : true},
+    endDateAndTime : {type : String , required : true}
    }
 });
 

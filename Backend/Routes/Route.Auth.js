@@ -21,7 +21,7 @@ AuthRouter.use(passport.session());
 passport.use(new GoogleStrategy({
     clientID: process.env.Google_Auth_ClientId,
     clientSecret: process.env.Google_Auth_Client_Secret,
-    callbackURL: 'http://localhost:4000/login/auth/google/callback', // subject to change 
+    callbackURL: process.env.Google_Auth_Callback_uri,
   },
   async function(accessToken, refreshToken, profile, cb) {
 

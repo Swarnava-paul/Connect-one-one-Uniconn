@@ -1,8 +1,10 @@
 const express = require('express');
-
+const fs = require('node:fs')
+const path = require('path')
 const ServiceRouter = express.Router();
 const {google}= require('googleapis');
-const moment = require('moment-timezone')
+const moment = require('moment-timezone');
+const nodemailer = require('nodemailer')
 // authentication check middleware
 const checkAuthentication = require('../Middlewares/Midddleware.CheckAuthentication');
 // Model
@@ -10,8 +12,7 @@ const EventModel = require('../Models/model.events');
 const UserModel = require('../Models/model.users');
 
 // mmodules 
-const ConvertTimeZoneToUtc = require('../Modules/Module.ConvertTimezoneToUtc')
-
+const ConvertTime = require('../Modules/HostToBookerTimeConverter')
 
 ServiceRouter.get('/getUserInfo',checkAuthentication,async(req,res)=>{
   try {
@@ -32,8 +33,8 @@ ServiceRouter.get('/getUserInfo',checkAuthentication,async(req,res)=>{
 ServiceRouter.get('/events',checkAuthentication,async(req,res)=>{
  
     try {
-      const {user} = req; // from auth middleware
-      const events = await EventModel.find({'sessionWith._id':user.id});
+      const {user:{id}} = req; // from auth middleware
+      const events = await EventModel.find({'hostInfo.id':id});
 
       if(events.length == 0) {
         return res.status(404).json({message:"No Events Found",response:true})
@@ -55,7 +56,7 @@ ServiceRouter.post('/sharableLink',checkAuthentication,async(req,res)=>{
     try {
        const {user} = req;
        const createSharableLink = await UserModel.updateOne({_id:user.id},
-       {$set:{sharable_link:`http://localhost:5173/sharable?${user.id}`}})
+       {$set:{sharable_link:`${process.env.Sharable_Link}?${user.id}`}})
 
        if(createSharableLink.modifiedCount == 0) {
          return res.status(500).json({message:"Failed to Generate Sharable Link"})
@@ -100,23 +101,27 @@ ServiceRouter.get('/configure-session',async(req,res)=>{
 
   try {
     const {id} = req.query; // extracts id of booking with person
-
+    const {bookerTimeZone} = req.body;
     const getInfo_for_session = await UserModel.findOne({_id:id});
 
-    const {name,email,availability} = getInfo_for_session;
+    const {name,email,availability,timeZone:hostTimeZone} = getInfo_for_session;
 
     if(!getInfo_for_session) {
      return res.status(404).json({message:"Sharable link is not Valid of No Host Found"})
     }
+     
+    const convertedAvailability = ConvertTime(availability,hostTimeZone,bookerTimeZone); 
+    // this above function converts hosts each slot start and end time to that time in booker timezone
+
 
     res.status(200).json({
       response:true,
       message:"Successful",
       info : {
-        name,email,availability
+        name,email,convertedAvailability
       }
     })
-
+  
   }catch(error) {
     res.status(500).json({message:"Internal Server Error"});
   }
@@ -197,10 +202,24 @@ ServiceRouter.post('/book-session',async(req,res)=>{
         }
       },
       { new: true } // Return the updated document
-    );
+    ); // removes that slot after booking
 
-    await UserModel.updateOne({_id:bookingWithPersonId},{$set:{availability:updatedAvailability}}) // removes that slot after booking
+    await UserModel.updateOne({_id:bookingWithPersonId},{$set:{availability:updatedAvailability}}) // replace
+    // new updated slot except of that slot that is booked 
     
+    await EventModel.create({
+       hostInfo : {name,email,id:bookingWithPersonId},
+       bookerInfo : {bookerName,bookerEmail},
+       sessionInfo : {
+        location : 'Google Meet',
+        meetingLink : d.data.hangoutLink,
+        StartDateAndTime : hostStartTime,
+        endDateAndTime : hostEndTime
+       }
+    })
+    
+    const convertedHostTimeToBookerTimeZone = moment.tz(utcStartTime, 'UTC').tz(bookerTimeZone).format();
+    const convertedHostEndTimeToBookerTimeZone = moment.tz(utcStartTime, 'UTC').tz(bookerTimeZone).add(30, 'minutes').format(); // 30 mins later
 
     return res.status(200).json({response:true,
     message:"Session Scheduled Successful",
@@ -210,20 +229,23 @@ ServiceRouter.post('/book-session',async(req,res)=>{
     bookingInfo : {
       location : "Google Meet",
       meetingLink : d.data.hangoutLink,
-      meetingDate : hostStartTime,
+      meetingStartDate_Time : convertedHostTimeToBookerTimeZone,
+      meetingEndDate_Time : convertedHostEndTimeToBookerTimeZone,
       meetingDuration : "30 Minutes"
     }
   }) // in success of meeting scheduling
    
-  res.status(500).json({message:"Failed to Book Session"})
-  // in case if any error and meeting is not scheduled
-
+ }).catch((e)=>{
+   
+  return res.status(500).json({message:"Failed to Book Session"})
  })
+ // in case if any error and meeting is not scheduled
 
   }catch(error) {
    res.status(500).json({message:"Internal Server Error"});
   }
 
 })
+
 
 module.exports = ServiceRouter;
