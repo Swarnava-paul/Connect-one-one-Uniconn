@@ -1,5 +1,5 @@
 require('dotenv').config()
-
+const cors = require('cors')
 const express = require('express'); 
 const database = require('./Config/Connection.Database');
 const cors = require('cors');
@@ -9,7 +9,9 @@ const server = express(); // express server
 // routes
 const AuthRouter = require('./Routes/Route.Auth'); 
 const ServiceRouter = require('./Routes/Route.Services');
+
 // <<- routes
+server.use(cors({origin:"*"})); // cors 
 
 server.use(express.json()) ; // for receiving incoming request body
 
