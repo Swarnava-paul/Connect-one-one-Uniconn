@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Front-End Flow Documentation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+      color: #333;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #0056b3;
+      text-align: center;
+    }
+    h2 {
+      color: #1d72b8;
+      margin-top: 40px;
+    }
+    p, li {
+      font-size: 16px;
+    }
+    .section {
+      border-left: 5px solid #007bff;
+      padding-left: 15px;
+      margin-bottom: 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    .section-title {
+      color: #007bff;
+    }
+    .highlight {
+      background-color: #e7f3ff;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .code {
+      background-color: #f1f1f1;
+      border-radius: 4px;
+      padding: 10px;
+      font-family: monospace;
+      margin: 10px 0;
+      font-size: 15px;
+      white-space: pre;
+    }
+    .list {
+      margin: 20px 0;
+      padding: 0 20px;
+    }
+    .list li {
+      margin-bottom: 10px;
+    }
+    .button {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 15px;
+      text-align: center;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Front-End Flow Documentation</h1>
+
+<!-- User Registration Flow -->
+<div class="section">
+  <h2 class="section-title">1. User Registration Flow</h2>
+  <p>When a user logs in for the first time, the system will check if they have a <span class="highlight">sharable link</span> generated.</p>
+  <div class="list">
+    <ul>
+      <li>If <span class="highlight">sharableLink</span> is <span class="highlight">false</span> in the backend response, the frontend will show an option to <span class="highlight">"Create Sharable Link"</span>.</li>
+      <li>If the user already has a sharable link, they will be redirected to the <span class="highlight">Dashboard</span> where they can manage sessions.</li>
+    </ul>
+  </div>
+  <div class="code">
+    // Sample Backend Response<br>
+    {<br>
+      "message": "User Fetched",<br>
+      "sharableLink": false, // New User<br>
+    }<br>
+    <br>
+    {<br>
+      "message": "User Fetched",<br>
+      "sharableLink": "http://example.com/sharable?userId", // Existing User<br>
+    }
+  </div>
+</div>
+
+<!-- Existing User Dashboard -->
+<div class="section">
+  <h2 class="section-title">2. Existing User Dashboard</h2>
+  <p>If the user is already registered and has a sharable link, the UI will show:</p>
+  <div class="list">
+    <ul>
+      <li><span class="highlight">Dashboard</span> - Overview of the user’s activities.</li>
+      <li><span class="highlight">Events</span> - Displays all <span class="highlight">upcoming</span> and <span class="highlight">completed</span> events.</li>
+      <li><span class="highlight">Edit Availability</span> - Provides the option to update time slots for booking.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Edit Availability Flow -->
+<div class="section">
+  <h2 class="section-title">3. Edit Availability Flow</h2>
+  <p>If the user selects <span class="highlight">Edit Availability</span>:</p>
+  <div class="list">
+    <ul>
+      <li>Redirect to the <span class="highlight">Edit Slots Page</span>.</li>
+      <li>Display a <span class="highlight">Calendar</span>, allowing the user to select a date.</li>
+      <li>Upon selecting a date, a <span class="highlight">Modal</span> will appear where the user can choose available timings.</li>
+      <li>The user can either <span class="highlight">add new slots</span> or <span class="highlight">replace existing slots</span>.</li>
+      <li>Send the updated slots to the server and update the backend availability.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Creating a Sharable Link -->
+<div class="section">
+  <h2 class="section-title">4. Creating a Sharable Link</h2>
+  <p>If the user is new and does not have a sharable link, the UI will provide an option to <span class="highlight">Create Sharable Link</span>. Once created, this link allows others to book sessions.</p>
+  <div class="button">Create Sharable Link</div>
+</div>
+
+<!-- Booking a Session -->
+<div class="section">
+  <h2 class="section-title">5. Booking a Session via Sharable Link</h2>
+  <p>Once the sharable link is created, another user can open the link and book a session. The steps include:</p>
+  <div class="list">
+    <ul>
+      <li>Open the link and view the host's availability.</li>
+      <li>Select a date from the calendar.</li>
+      <li>Choose from available time slots for that date.</li>
+      <li>Confirm the booking and submit the form to schedule the session.</li>
+    </ul>
+  </div>
+  <div class="button">Book Session</div>
+</div>
+
+</body>
+</html>

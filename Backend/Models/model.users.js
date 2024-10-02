@@ -13,10 +13,10 @@ name : {type : String , required : true},
 email : {type : String , required : true},
 googleId : {type:String,required:true},
 oAuthAccessToken : {type : String , required : true},
-oAuthRefreshToken : {type:String},
+oAuthRefreshToken : {type:String,required:true},
 availability : [availabilitySchema],
-sharable_link : {type : String , default : false },
-timeZone : {type:String}
+sharable_link : {type : String , required : true },
+timeZone : {type:String , required: true}
 },{versionKey:false,timestamps:true})
 
 const UserModel = mongoose.model('User',userSchema)

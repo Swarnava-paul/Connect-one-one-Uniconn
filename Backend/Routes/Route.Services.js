@@ -19,7 +19,7 @@ ServiceRouter.get('/getUserInfo',checkAuthentication,async(req,res)=>{
   const {id} = req.user;
   const findUser = await UserModel.find({_id:id});
   res.status(200).json({message:"User Fetched",name:findUser[0].name,email:findUser[0].email,
-    sharable_link:findUser[0].sharable_link,id:findUser[0]._id})
+    sharable_link:findUser[0].sharable_link,id:findUser[0]._id,timeZone:findUser[0].timeZone})
   
   }catch (error) {
    res.status(500).json({message:"Internal Server Error"})
@@ -99,8 +99,8 @@ ServiceRouter.post('/slots',checkAuthentication,async(req,res)=>{
 ServiceRouter.get('/configure-session',async(req,res)=>{
 
   try {
-    const {id} = req.query; // extracts id of booking with person
-    const {bookerTimeZone} = req.body;
+    const {id,t} = req.query; // extracts id of booking with person
+    //const {bookerTimeZone} = req.body;
     const getInfo_for_session = await UserModel.findOne({_id:id});
 
     const {name,email,availability,timeZone:hostTimeZone} = getInfo_for_session;
@@ -109,7 +109,7 @@ ServiceRouter.get('/configure-session',async(req,res)=>{
      return res.status(404).json({message:"Sharable link is not Valid of No Host Found"})
     }
      
-    const convertedAvailability = ConvertTime(availability,hostTimeZone,bookerTimeZone); 
+    const convertedAvailability = ConvertTime(availability,hostTimeZone,t); //bookerTimeZone 
     // this above function converts hosts each slot start and end time to that time in booker timezone
 
 
