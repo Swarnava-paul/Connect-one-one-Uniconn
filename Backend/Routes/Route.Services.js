@@ -96,11 +96,23 @@ ServiceRouter.post('/slots',checkAuthentication,async(req,res)=>{
 })
 // this endpoint is handeling creating slots 
 
+ServiceRouter.get('/slot',checkAuthentication,async(req,res)=>{
+ try {
+  const {user:{id}} = req;
+  const {availability} = await UserModel.findOne({_id:id});
+  res.status(200).json({Response : true , availability})
+ }catch(e) {
+  res.status(500).json({message:"Internal Server Error"});
+ }
+})
+// this endpoint is handelling retrive already created availibility slots 
+// designed for host dashboard 
+
 ServiceRouter.get('/configure-session',async(req,res)=>{
 
   try {
-    const {id,t} = req.query; // extracts id of booking with person
-    //const {bookerTimeZone} = req.body;
+    const {id} = req.query; // extracts id of booking with person
+    const {bookerTimeZone} = req.body;
     const getInfo_for_session = await UserModel.findOne({_id:id});
 
     const {name,email,availability,timeZone:hostTimeZone} = getInfo_for_session;
@@ -109,7 +121,7 @@ ServiceRouter.get('/configure-session',async(req,res)=>{
      return res.status(404).json({message:"Sharable link is not Valid of No Host Found"})
     }
      
-    const convertedAvailability = ConvertTime(availability,hostTimeZone,t); //bookerTimeZone 
+    const convertedAvailability = ConvertTime(availability,hostTimeZone,bookerTimeZone); //bookerTimeZone 
     // this above function converts hosts each slot start and end time to that time in booker timezone
 
 
