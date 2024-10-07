@@ -12,7 +12,8 @@ const EventModel = require('../Models/model.events');
 const UserModel = require('../Models/model.users');
 
 // mmodules 
-const ConvertTime = require('../Modules/HostToBookerTimeConverter')
+const ConvertTime = require('../Modules/HostToBookerTimeConverter');
+const { time } = require('node:console');
 
 ServiceRouter.get('/getUserInfo',checkAuthentication,async(req,res)=>{
   try {
@@ -28,7 +29,27 @@ ServiceRouter.get('/getUserInfo',checkAuthentication,async(req,res)=>{
 // by using this endpoint we are able to check if user is a new or old depending on sharable link false 
 // and also get details like id for comunication 
 
+ServiceRouter.post('/timeZone',async(req,res)=>{
+ 
+  try {
+   const {timeZone} = req.body;
+   if (!timeZone) {
+    return res.status(400).json({message:"Please provide Time Zone in request Body"})
+   }
 
+   const {user:{id}} = req; 
+   const setTimeZone = await UserModel.updateOne({_id:id},{$set:{timeZone:timeZone}});
+
+   if (setTimeZone.modifiedCount == 1) {
+    return res.status(200).json({message:"Time Zone set successful",Response:true});
+   }
+   return res.status(400).json({message:"Setting Time zone Unsuccessful"});
+  }catch(error) {
+   res.status(500).json({message:"Internal Server Error"});
+  }
+
+})
+// this api endpoint will handle setting timezone to user in db
 
 ServiceRouter.get('/events',checkAuthentication,async(req,res)=>{
  
@@ -257,6 +278,7 @@ ServiceRouter.post('/book-session',async(req,res)=>{
   }
 
 })
+// this api handel main logic of booking session 
 
 
 module.exports = ServiceRouter;
