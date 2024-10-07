@@ -25,7 +25,6 @@ passport.use(new GoogleStrategy({
   },
   async function(accessToken, refreshToken, profile, cb) {
 
-    
     const email = profile.emails[0].value;
     try {
       let findUser = await UserModel.findOne({email:email});
@@ -41,6 +40,7 @@ passport.use(new GoogleStrategy({
         return cb(null,findUser)
       }
     } catch(error) {
+      console.log(error)
       return cb(error)
     }
   }
@@ -58,7 +58,7 @@ passport.deserializeUser(async function(id, cb) {
 
 
 AuthRouter.get('/auth/google',
-    passport.authenticate('google', { scope: ['profile','email','https://www.googleapis.com/auth/calendar'], accessType: 'offline'}))
+    passport.authenticate('google', { scope: ['profile','email','https://www.googleapis.com/auth/calendar'], accessType: 'offline',prompt: 'consent'}))
 
 AuthRouter.get('/auth/google/callback', 
         passport.authenticate('google', { failureRedirect: '/error' }),
@@ -77,6 +77,7 @@ AuthRouter.get('/auth/google/callback',
            res.status(500).json({message:"Internal server Error"})
           } 
 });
+
 
 AuthRouter.get('/healthCheck',(req,res)=>{
     res.end('Auth Router is Ok')
