@@ -5,6 +5,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { PickersDay } from "@mui/x-date-pickers/PickersDay";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
+import { div } from "framer-motion/client";
 
 // Fake data fetching function
 const fetchAvailability = async () => {
@@ -70,7 +71,7 @@ const fetchAvailability = async () => {
   return response.availability;
 };
 
-const ServerDay = (props) => {
+/*const ServerDay = (props) => {
   const { availableDays = [], day, outsideCurrentMonth, ...other } = props;
 
   // Check if the current day is available by matching date and month
@@ -81,13 +82,13 @@ const ServerDay = (props) => {
   const isAvailable = !!availableData;
 
   return (
-    <Badge
+    <Badge 
       key={day.toString()}
       overlap="circular"
-      badgeContent={isAvailable ? "✔" : undefined}
+      badgeContent={isAvailable ? "SH" : undefined}
       sx={{
         ".MuiBadge-badge": {
-          backgroundColor: isAvailable ? "green" : "transparent",
+          backgroundColor: isAvailable ? "red" : "transparent",
           color: isAvailable ? "white" : "transparent",
         },
       }}
@@ -102,11 +103,53 @@ const ServerDay = (props) => {
         {...other}
         day={day}
         outsideCurrentMonth={outsideCurrentMonth}
-        disabled={!isAvailable}
+        disabled={isAvailable}
+      />
+    </Badge>
+  );
+};*/
+const ServerDay = (props) => {
+  const { availableDays = [], day, outsideCurrentMonth, ...other } = props;
+
+  const today = dayjs(); // Get today's date
+  const isPast =
+    day.isBefore(today, 'day') && !outsideCurrentMonth; // Check if the date has passed
+
+  // Check if the current day is available by matching date and month
+  const availableData = availableDays.find(
+    (d) => d.date === day.date() && d.month === day.month() + 1
+  );
+
+  const isAvailable = !!availableData;
+
+  return (
+    <Badge
+      key={day.toString()}
+      overlap="circular"
+      badgeContent={isAvailable ? "SH" : undefined}
+      sx={{
+        ".MuiBadge-badge": {
+          backgroundColor: isAvailable ? "red" : "transparent",
+          color: isAvailable ? "white" : "transparent",
+        },
+      }}
+    >
+      <PickersDay
+        {...other}
+        day={day}
+        outsideCurrentMonth={outsideCurrentMonth}
+        disabled={isAvailable || isPast} // Disable past dates and unavailable dates
+        onClick={() => {
+          if (isAvailable) {
+            console.log("Availability Object for:", day.format("YYYY-MM-DD"));
+            console.log(availableData); // Log the entire availability object
+          }
+        }}
       />
     </Badge>
   );
 };
+
 
 export function MeetingSchedulerCalendar() {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -129,8 +172,12 @@ export function MeetingSchedulerCalendar() {
   }, []);
 
   return (
+    <div    style={{
+      border:'13px solid grey',borderRadius:"20px",
+      width:'30%',margin:"auto",fontSize:"30px"}}>
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DateCalendar
+      <DateCalendar 
+       
         loading={isLoading}
         renderLoading={() => <p>Loading...</p>}
         slots={{
@@ -143,5 +190,7 @@ export function MeetingSchedulerCalendar() {
         }}
       />
     </LocalizationProvider>
+    </div>
   );
 }
+

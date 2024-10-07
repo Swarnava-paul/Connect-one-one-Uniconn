@@ -1,171 +1,286 @@
-<h1 style="color:#21021d; text-align:center;">API Documentation for One-on-One Session Booking System</h1>
-<br><br><br><br>
-<h2 style="color:#4682B4;">Overview</h2>
-<p>This document provides an overview of the API endpoints used for booking one-on-one sessions, managing user availability, and handling authentication. It is designed to help the frontend team interact with the backend effectively.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - UniConn Booking System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #2d87f0;
+            text-align: center;
+        }
+        h2 {
+            color: #ff7a59;
+        }
+        h3 {
+            color: #ff9671;
+        }
+        p {
+            color: #4a4a4a;
+        }
+        .endpoint {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .method {
+            color: #fff;
+            background-color: #ff9671;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        code {
+            background-color: #f1f1f1;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 1rem;
+            color: #2d87f0;
+        }
+        .success {
+            background-color: #2dce89;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .error {
+            background-color: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .request-response {
+            padding-left: 20px;
+        }
+        .request-body {
+            background-color: #ffdd57;
+            padding: 10px;
+            border-radius: 4px;
+            color: #4a4a4a;
+        }
+        .response-body {
+            background-color: #d2f6c5;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .flowchart {
+            background-color: #ffebc1;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
 
-<h2 style="color:#4682B4;">Authentication Flow</h2>
+    <h1>API Documentation: UniConn Booking System</h1>
 
-<h3 style="color:#FF8C00;">User Login</h3>
-<ul style="color:#000;">
-  <li>Users log in via Google OAuth.</li>
-  <li>Upon successful login, a JWT token is generated and returned to the frontend.</li>
-</ul>
+    <!-- 1. Get User Info -->
+    <div class="endpoint">
+        <h2>1. Get User Info</h2>
+        <span class="method">GET</span> <code>/getUserInfo</code>
+        <p>Fetches the user information based on the authenticated user.</p>
 
-<h3 style="color:#FF8C00;">Token Verification</h3>
-<ul style="color:#000;">
-  <li>The token is used to authenticate requests to protected routes.</li>
-</ul>
+        <h3>Request Headers</h3>
+        <ul>
+            <li><code>Authorization</code>: Bearer Token</li>
+        </ul>
 
-<h2 style="color:#4682B4;">API Endpoints</h2>
+        <h3>Response</h3>
+        <div class="response-body">
+            <code>
+                {
+                  "message": "User Fetched",
+                  "name": "John Doe",
+                  "email": "john@example.com",
+                  "sharable_link": "false",
+                  "id": "12345",
+                  "timeZone": "America/New_York"
+                }
+            </code>
+        </div>
+        <p class="success">Status: 200 OK</p>
+        <p class="error">Status: 500 Internal Server Error</p>
+    </div>
 
-<h3 style="color:#DAA520;">1. User Authentication</h3>
-<p><strong>Endpoint</strong>: <code style="color:#800080;">/login/auth/google</code></p>
-<p><strong>Method</strong>: <span style="color:#008080;">GET</span></p>
-<p><strong>Description</strong>: Initiates the Google OAuth authentication process.</p>
+    <!-- 2. Get User Events -->
+    <div class="endpoint">
+        <h2>2. Get User Events</h2>
+        <span class="method">GET</span> <code>/events</code>
+        <p>Retrieve all events hosted by the authenticated user.</p>
 
-<br><br>
+        <h3>Request Headers</h3>
+        <ul>
+            <li><code>Authorization</code>: Bearer Token</li>
+        </ul>
 
-<h3 style="color:#DAA520;">2. Fetch User Information</h3>
-<p><strong>Endpoint</strong>: <code style="color:#800080;">/login/getUserInfo</code></p>
-<p><strong>Method</strong>: <span style="color:#008080;">GET</span></p>
-<p><strong>Authentication</strong>: Required</p>
+        <h3>Response</h3>
+        <div class="response-body">
+            <code>
+                {
+                  "response": true,
+                  "message": "Events Found",
+                  "events": [
+                    {
+                      "eventId": "abc123",
+                      "hostInfo": {"name": "John", "id": "123"},
+                      "sessionInfo": {
+                        "location": "Google Meet",
+                        "meetingLink": "https://meet.google.com/xyz"
+                      }
+                    }
+                  ]
+                }
+            </code>
+        </div>
+        <p class="success">Status: 200 OK</p>
+        <p class="error">Status: 500 Internal Server Error</p>
+    </div>
 
-<h4 style="color:#4682B4;">Request Headers:</h4>
-<pre style="background-color:#F0F8FF; border-left: 5px solid #4682B4; padding: 10px;"><code>Authorization: Bearer {token}</code></pre>
+    <!-- 3. Create Sharable Link -->
+    <div class="endpoint">
+        <h2>3. Create Sharable Link</h2>
+        <span class="method">POST</span> <code>/sharableLink</code>
+        <p>Generate a sharable link that allows anyone to book a session with the user.</p>
 
-<h4 style="color:#4682B4;">Response Body:</h4>
-<pre style="background-color:#F0F8FF; border-left: 5px solid #4682B4; padding: 10px;"><code>{
-  "message": "User Fetched",
-  "name": "User Name",
-  "email": "user@example.com",
-  "sharable_link": "http://localhost:5173/sharable?userId",
-  "id":someId
-}</code></pre>
-<br><br>
-<h3 style="color:#DAA520;">3. Generate Sharable Link</h3>
-<p><strong>Endpoint</strong>: <code style="color:#800080;">/api/v1/sharableLink</code></p>
-<p><strong>Method</strong>: <span style="color:#008080;">POST</span></p>
-<p><strong>Authentication</strong>: Required</p>
+        <h3>Request Headers</h3>
+        <ul>
+            <li><code>Authorization</code>: Bearer Token</li>
+        </ul>
 
-<h4 style="color:#4682B4;">Request Headers:</h4>
-<pre style="background-color:#F0F8FF; border-left: 5px solid #4682B4; padding: 10px;"><code>Authorization: Bearer {token}</code></pre>
+        <h3>Response</h3>
+        <div class="response-body">
+            <code>
+                {
+                  "response": true,
+                  "message": "Sharable Link Generated Successful",
+                  "sharable_link": "https://example.com/session?id=123"
+                }
+            </code>
+        </div>
+        <p class="success">Status: 200 OK</p>
+        <p class="error">Status: 500 Internal Server Error</p>
+    </div>
 
-<h4 style="color:#4682B4;">Response Body:</h4>
-<pre style="background-color:#F0F8FF; border-left: 5px solid #4682B4; padding: 10px;"><code>{
-  "response": true,
-  "message": "Sharable Link Generated Successfully",
-  "sharable_link": "http://localhost:5173/sharable?userId"
-}</code></pre>
-<br><br>
-<h3 style="color:#DAA520;">4. Create Availability Slot</h3>
-<p><strong>Endpoint</strong>: <code style="color:#800080;">/api/v1/slots</code></p>
-<p><strong>Method</strong>: <span style="color:#008080;">PATCH</span></p>
-<p><strong>Authentication</strong>: Required</p>
+    <!-- 4. Manage Availability Slots -->
+    <div class="endpoint">
+        <h2>4. Manage Availability Slots</h2>
+        <span class="method">POST</span> <code>/slots</code>
+        <p>Update or create available time slots for users to book.</p>
 
-<h4 style="color:#4682B4;">Request Headers:</h4>
-<pre style="background-color:#F0F8FF; border-left: 5px solid #4682B4; padding: 10px;"><code>Authorization: Bearer {token}</code></pre>
+        <h3>Request Body</h3>
+        <div class="request-body">
+            <code>
+                {
+                  "newAvailabilityDate": {
+                    "date": "2024-12-01",
+                    "slots": [{"startTime": "10:00", "endTime": "11:00"}]
+                  }
+                }
+            </code>
+        </div>
 
-<h4 style="color:#4682B4;">Request Body:</h4>
-<pre style="background-color:#F0F8FF; border-left: 5px solid #4682B4; padding: 10px;"><code>{
-  "availability":{
-      "month": 10,
-      "date": 1,
-      "slots": [
-        { "start": "10:00", "end": "11:00" },
-        { "start": "14:00", "end": "15:00" }
-      ]
-}
-</code></pre>
+        <h3>Response</h3>
+        <div class="response-body">
+            <code>
+                {
+                  "message": "Slots Updated Successful"
+                }
+            </code>
+        </div>
+        <p class="success">Status: 200 OK</p>
+        <p class="error">Status: 500 Internal Server Error</p>
+    </div>
 
-<h4 style="color:#4682B4;">Response:</h4>
-<pre style="background-color:#F0F8FF; border-left: 5px solid #4682B4; padding: 10px;"><code>{
-  "message": "Slots Updated Successfully"
-}</code></pre>
-<br><br>
-<h3 style="color:#DAA520;">5. Configure Session</h3>
-<p><strong>Endpoint</strong>: <code style="color:#800080;">/api/v1/configure-session</code></p>
-<p><strong>Method</strong>: <span style="color:#008080;">GET</span></p>
-<p><strong>Query Parameters</strong>: <code>?id=userId</code></p>
-<p><strong>Description</strong>: Retrieves host information for booking a session.</p>
+    <!-- 5. Configure Session (For Booker) -->
+    <div class="endpoint">
+        <h2>5. Configure Session</h2>
+        <span class="method">GET</span> <code>/configure-session</code>
+        <p>Fetch session information for booking with the user, including available slots.</p>
 
-<h4 style="color:#4682B4;">Response Body:</h4>
-<pre style="background-color:#F0F8FF; border-left: 5px solid #4682B4; padding: 10px;"><code>{
-  "response": true,
-  "message": "Successful",
-  "info": {
-    "name": "Host Name",
-    "email": "host@example.com",
-    "availability": [...]
-  }
-}</code></pre>
-<br><br>
-<h3 style="color:#DAA520;">6. Book a Session</h3>
-<p><strong>Endpoint</strong>: <code style="color:#800080;">/api/v1/book-session</code></p>
-<p><strong>Method</strong>: <span style="color:#008080;">POST</span></p>
+        <h3>Query Parameters</h3>
+        <ul>
+            <li><code>id</code>: Host ID</li>
+            <li><code>t</code>: Timezone</li>
+        </ul>
 
-<h4 style="color:#4682B4;">Request Body:</h4>
-<pre style="background-color:#F0F8FF; border-left: 5px solid #4682B4; padding: 10px;"><code>{
-  "id": "booking_with_person_id",
-  "startTime": "2024-09-30T14:00:00",
-  "bookerEmail": "booker@example.com",
-  "bookerName": "Booker Name",
-  "bookerTimeZone": "America/New_York",
-  "slotId": "slot_id",
-  "availabilityId": "availability_id"
-}</code></pre>
+        <h3>Response</h3>
+        <div class="response-body">
+            <code>
+                {
+                  "response": true,
+                  "message": "Successful",
+                  "info": {
+                    "name": "John",
+                    "email": "john@example.com",
+                    "convertedAvailability": [...]
+                  }
+                }
+            </code>
+        </div>
+        <p class="success">Status: 200 OK</p>
+        <p class="error">Status: 500 Internal Server Error</p>
+    </div>
 
-<h4 style="color:#4682B4;">Response Body:</h4>
-<pre style="background-color:#F0F8FF; border-left: 5px solid #4682B4; padding: 10px;"><code>{
-  "response": true,
-  "message": "Session Scheduled Successfully",
-  "bookingWithPersonInfo": {
-    "name": "Host Name",
-    "email": "host@example.com"
-  },
-  "bookingInfo": {
-    "location": "Google Meet",
-    "meetingLink": "https://meet.google.com/xxxxx",
-    "meetingDate": "2024-09-30T14:00:00-05:00",
-    "meetingDuration": "30 Minutes"
-  }
-}</code></pre>
-<br><br>
-<h2 style="color:#4682B4;">Flowchart</h2>
-<p>The following flow illustrates the user booking flow:</p>
+    <!-- 6. Book Session -->
+    <div class="endpoint">
+        <h2>6. Book Session</h2>
+        <span class="method">POST</span> <code>/book-session</code>
+        <p>Book a session with the user and create a Google Calendar event.</p>
 
-<pre style="background-color:#FFF8DC; padding: 10px; text-align: center;">
-+------------------+
-| User Logs In     |
-| via Google OAuth |
-+------------------+
-          |
-          v
-+------------------+
-| Receive JWT Token|
-+------------------+
-          |
-          v
-+------------------+
-| Generate Sharable|
-| Link             |
-+------------------+
-          |
-          v
-+-------------------+
-| Configure Session |
-| (Get Host Info)   |
-+-------------------+
-          |
-          v
-+-------------------+
-| Book Session      |
-| (Create Google    |
-| Meet Event)       |
-+-------------------+
-          |
-          v
-+-------------------+
-| Receive Booking   |
-| Confirmation      |
-+-------------------+
-</pre>
+        <h3>Request Body</h3>
+        <div class="request-body">
+            <code>
+                {
+                  "id": "12345",
+                  "startTime": "2024-12-01T10:00:00",
+                  "bookerEmail": "booker@example.com",
+                  "bookerName": "Booker",
+                  "bookerTimeZone": "America/New_York",
+                  "slotId": "slot123",
+                  "availabilityId": "availability123"
+                }
+            </code>
+        </div>
+
+        <h3>Response</h3>
+        <div class="response-body">
+            <code>
+                {
+                  "response": true,
+                  "message": "Session Scheduled Successful",
+                  "bookingInfo": {
+                    "location": "Google Meet",
+                    "meetingLink": "https://meet.google.com/xyz",
+                    "meetingStartDate_Time": "2024-12-01T10:00:00",
+                    "meetingDuration": "30 Minutes"
+                  }
+                }
+            </code>
+        </div>
+        <p class="success">Status: 200 OK</p>
+        <p class="error">Status: 500 Internal Server Error</p>
+    </div>
+
+    <!-- Flowchart -->
+    <div class="flowchart">
+        <h2>Booking Flowchart</h2>
+        <ul>
+            <li>User logs in</li>
+            <li>User generates sharable link or manages availability</li>
+            <li>Booker retrieves available slots</li>
+            <li>Booker schedules session</li>
+            <li>System integrates with Google Calendar and sends booking confirmation</li>
+        </ul>
+    </div>
+
+</body>
+</html>

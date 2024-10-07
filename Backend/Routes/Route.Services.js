@@ -29,7 +29,7 @@ ServiceRouter.get('/getUserInfo',checkAuthentication,async(req,res)=>{
 // by using this endpoint we are able to check if user is a new or old depending on sharable link false 
 // and also get details like id for comunication 
 
-ServiceRouter.post('/timeZone',async(req,res)=>{
+ServiceRouter.post('/timeZone',checkAuthentication,async(req,res)=>{
  
   try {
    const {timeZone} = req.body;
@@ -37,7 +37,7 @@ ServiceRouter.post('/timeZone',async(req,res)=>{
     return res.status(400).json({message:"Please provide Time Zone in request Body"})
    }
 
-   const {user:{id}} = req; 
+   const {user:{id}} = req; // from auth middleware
    const setTimeZone = await UserModel.updateOne({_id:id},{$set:{timeZone:timeZone}});
 
    if (setTimeZone.modifiedCount == 1) {
@@ -45,6 +45,7 @@ ServiceRouter.post('/timeZone',async(req,res)=>{
    }
    return res.status(400).json({message:"Setting Time zone Unsuccessful"});
   }catch(error) {
+   console.log(error)
    res.status(500).json({message:"Internal Server Error"});
   }
 
