@@ -78,7 +78,7 @@ ServiceRouter.post('/sharableLink',checkAuthentication,async(req,res)=>{
     try {
        const {user} = req;
        const createSharableLink = await UserModel.updateOne({_id:user.id},
-       {$set:{sharable_link:`${process.env.Sharable_Link}?${user.id}`}})
+       {$set:{sharable_link:`${process.env.Sharable_Link}/${user.id}`}})
 
        if(createSharableLink.modifiedCount == 0) {
          return res.status(500).json({message:"Failed to Generate Sharable Link"})
